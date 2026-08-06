@@ -1,0 +1,6 @@
+# macOS
+.DS_Store
+._*
+
+# Machine-local state that must not be versioned
+*.local
