@@ -32,9 +32,6 @@ source "$ZSH/oh-my-zsh.sh"
 # ─── mise (version manager) ──────────────────────────────────
 eval "$(mise activate zsh)"
 
-# ─── zoxide (smarter cd) ─────────────────────────────────────
-eval "$(zoxide init zsh --cmd cd)"
-
 # ─── fzf ─────────────────────────────────────────────────────
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
@@ -95,3 +92,7 @@ export PATH="$HOME/.opencode/bin:$PATH"
 
 # ─── wezterm ─────────────────────────────────────────────────
 export PATH="$PATH:/Applications/WezTerm.app/Contents/MacOS"
+
+# ─── zoxide (smarter cd) ─────────────────────────────────────
+# Last: zoxide replaces cd and warns when anything is loaded after it.
+eval "$(zoxide init zsh --cmd cd)"
