@@ -4,3 +4,7 @@
 
 # Machine-local state that must not be versioned
 *.local
+
+# nix build output symlinks
+result
+result-*
