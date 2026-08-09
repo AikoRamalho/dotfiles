@@ -12,13 +12,16 @@ outside `~/.config` in the home directory (such as `.zshrc` and `.gitconfig`).
 
 ```
 dotfiles/
-├── flake.nix          # inputs: nixpkgs + home-manager
+├── flake.nix          # inputs: nixpkgs, nix-darwin, home-manager, nix-homebrew
 ├── flake.lock         # pinned input revisions
-├── home.nix           # the symlinks and the package list
+├── configuration.nix  # macOS defaults and the Homebrew lists
+├── home.nix           # the symlinks and the nixpkgs package list
 └── home/
     └── .config/
         ├── git/
         │   └── .gitconfig
+        ├── mise/
+        │   └── config.toml
         ├── wezterm/
         │   └── wezterm.lua
         └── zsh/
@@ -31,11 +34,12 @@ file's destination is declared in [`home.nix`](home.nix):
 ```nix
 home.file.".zshrc".source = link ".config/zsh/.zshrc";
 home.file.".gitconfig".source = link ".config/git/.gitconfig";
+xdg.configFile."mise/config.toml".source = link ".config/mise/config.toml";
 xdg.configFile."wezterm/wezterm.lua".source = link ".config/wezterm/wezterm.lua";
 ```
 
 To add a new configuration: drop the file in `home/.config/<tool>/`, declare it
-in `home.nix` and run `home-manager switch` again.
+in `home.nix` and rebuild.
 
 ### Symlinks point at the working tree
 
@@ -65,7 +69,7 @@ Then:
 ```sh
 git clone git@github.com:<user>/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-nix run home-manager/master -- switch --flake .#aikoramalho -b backup
+sudo nix run nix-darwin -- switch --flake .#mac -b backup
 ```
 
 `-b backup` renames any file already sitting at a destination to
@@ -73,11 +77,35 @@ nix run home-manager/master -- switch --flake .#aikoramalho -b backup
 machine that already has a `~/.zshrc`. Later runs are just:
 
 ```sh
-home-manager switch --flake ~/dotfiles#aikoramalho
+sudo darwin-rebuild switch --flake ~/dotfiles#mac
 ```
 
-`home-manager build --flake .#aikoramalho` evaluates and builds the
+`nix build .#darwinConfigurations.mac.system` evaluates and builds the
 configuration without activating it — the equivalent of a dry run.
+
+Note that a flake only sees files tracked by Git: a new file has to be at least
+`git add`ed before a rebuild can see it.
+
+## Where a tool belongs
+
+Three layers, and picking the right one is the whole job:
+
+| Layer | For | Pinned by |
+| --- | --- | --- |
+| `home.packages` in `home.nix` | CLI tools used everywhere, where the version does not matter | `flake.lock` |
+| `homebrew` in `configuration.nix` | GUI casks, fonts, and tools with no nixpkgs equivalent | nothing |
+| `home/.config/mise/config.toml` | language runtimes and project-scoped tools | the project's own `.mise.toml` |
+
+The test: **if two of your projects could want different versions, it does not
+belong in the first two layers.** Only mise has a per-project escape hatch, so
+only mise can hold something whose version is contested.
+
+Go is the exception worth knowing: `GOTOOLCHAIN=auto` already resolves the
+version from each `go.mod`, so one pinned toolchain in `home.packages` is
+enough.
+
+`homebrew.onActivation.cleanup = "zap"` makes those lists authoritative —
+anything installed by hand is uninstalled on the next rebuild.
 
 ## What is here
 
@@ -85,18 +113,13 @@ configuration without activating it — the equivalent of a dry run.
 | --- | --- | --- |
 | zsh | `home/.config/zsh/.zshrc` | Oh My Zsh + powerlevel10k, mise, zoxide, fzf, atuin and aliases |
 | git | `home/.config/git/.gitconfig` | delta as pager and diff filter |
+| mise | `home/.config/mise/config.toml` | global tool versions; a project's own `.mise.toml` wins |
 | WezTerm | `home/.config/wezterm/wezterm.lua` | rose-pine-moon theme; dims unfocused windows |
 
 ## Dependencies
 
-The CLI tools the `.zshrc` expects on `PATH` are declared in `home.packages`,
-so `home-manager switch` installs them.
-
-GUI apps and fonts stay in Homebrew, which handles macOS app bundles better:
-
-```sh
-brew install --cask wezterm font-hack-nerd-font
-```
+Everything the `.zshrc` expects on `PATH` is declared — in `home.packages`, in
+the `homebrew` lists or in the mise config — so a rebuild installs it all.
 
 Oh My Zsh and the zsh theme/plugins are installed separately:
 
