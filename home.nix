@@ -34,6 +34,9 @@ in
       eza
       fd
       fzf
+      git-codereview
+      go
+      gopls
       lazygit
       mise
       procs
