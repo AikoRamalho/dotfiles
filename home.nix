@@ -38,12 +38,14 @@ in
       mise
       procs
       ripgrep
-      uv
       zoxide
     ];
   };
 
-  xdg.configFile."wezterm/wezterm.lua".source = link ".config/wezterm/wezterm.lua";
+  xdg.configFile = {
+    "mise/config.toml".source = link ".config/mise/config.toml";
+    "wezterm/wezterm.lua".source = link ".config/wezterm/wezterm.lua";
+  };
 
   programs.home-manager.enable = true;
 }

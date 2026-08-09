@@ -1,0 +1,21 @@
+# Global tool versions.
+#
+# What is set here is a fallback, not a pin: a repository's own .mise.toml
+# overrides it, and for Go tools a `tool` directive in go.mod overrides both.
+# Tools live here when every project can share one version; the ones that
+# cannot belong in the project that needs them.
+
+[tools]
+node = "lts"
+python = "latest"
+
+act = "latest"
+air = "latest"
+golangci-lint = "latest"
+hadolint = "latest"
+helm = "latest"
+kubectl = "latest"
+supabase = "latest"
+terraform = "latest"
+uv = "latest"
+yq = "latest"
