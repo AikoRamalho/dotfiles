@@ -88,17 +88,30 @@ Note that a flake only sees files tracked by Git: a new file has to be at least
 
 ## Where a tool belongs
 
-Three layers, and picking the right one is the whole job:
+Four places a tool can live, and picking the right one is the whole job:
 
 | Layer | For | Pinned by |
 | --- | --- | --- |
-| `home.packages` in `home.nix` | CLI tools used everywhere, where the version does not matter | `flake.lock` |
-| `homebrew` in `configuration.nix` | GUI casks, fonts, and tools with no nixpkgs equivalent | nothing |
+| `home.packages` in `home.nix` | everything, by default | `flake.lock` |
+| `pkgs.unstable.*` in `home.nix` | the few tools where a release behind costs something | `flake.lock` |
 | `home/.config/mise/config.toml` | language runtimes and project-scoped tools | the project's own `.mise.toml` |
+| `homebrew` in `configuration.nix` | GUI casks and fonts, and whatever nixpkgs does not carry | nothing |
 
-The test: **if two of your projects could want different versions, it does not
-belong in the first two layers.** Only mise has a per-project escape hatch, so
-only mise can hold something whose version is contested.
+Two rules decide the layer, in this order:
+
+1. **If two of your projects could want different versions, it goes to mise.**
+   Only mise has a per-project escape hatch — a `.mise.toml` in the repository
+   overrides the global entry. nixpkgs and Homebrew declare one version and that
+   is the only one available.
+2. **Otherwise nixpkgs, and Homebrew only as an exception** — a GUI cask or
+   font, something missing from nixpkgs on `aarch64-darwin`, or something with
+   no darwin binary cache. Homebrew is the one layer with no lock: `brew "jq"`
+   does not name a version, it names whatever exists on the day you rebuild.
+
+Being a release behind is not a reason to fall back to Homebrew. The
+`nixpkgs-unstable` input exists for that: its revision is locked too, so
+`pkgs.unstable.neovim` is as reproducible as anything else and moves only when
+`nix flake update` says so.
 
 Go is the exception worth knowing: `GOTOOLCHAIN=auto` already resolves the
 version from each `go.mod`, so one pinned toolchain in `home.packages` is
