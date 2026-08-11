@@ -36,10 +36,7 @@
     onActivation.extraFlags = [ "--force" ];
     taps = [ ];
     brews = [
-      "awscli"
-      "azure-cli"
       "herdr"
-      "neovim"
     ];
     casks = [
       "claude-code"
