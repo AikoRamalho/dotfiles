@@ -38,17 +38,8 @@
     brews = [
       "awscli"
       "azure-cli"
-      "gh"
-      "grpcurl"
       "herdr"
-      "httpie"
-      "hyperfine"
-      "jq"
-      "just"
-      "k9s"
       "neovim"
-      "tealdeer"
-      "tmux"
     ];
     casks = [
       "claude-code"

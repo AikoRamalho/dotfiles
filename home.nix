@@ -34,13 +34,22 @@ in
       eza
       fd
       fzf
+      gh
       git-codereview
       go
       gopls
+      grpcurl
+      httpie
+      hyperfine
+      jq
+      just
+      k9s
       lazygit
       mise
       procs
       ripgrep
+      tealdeer
+      tmux
       zoxide
     ];
   };
