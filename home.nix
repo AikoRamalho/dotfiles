@@ -35,9 +35,7 @@ in
       fd
       fzf
       gh
-      git-codereview
       go
-      gopls
       grpcurl
       httpie
       hyperfine
