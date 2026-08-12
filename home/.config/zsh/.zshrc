@@ -19,7 +19,6 @@ plugins=(
   npm
   node
   mise
-  direnv
   fzf-tab
   zsh-autosuggestions
   zsh-syntax-highlighting
@@ -80,9 +79,6 @@ export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 
 # ─── Editor ──────────────────────────────────────────────────
 export EDITOR="code --wait"
-
-# ─── direnv ──────────────────────────────────────────────────
-eval "$(direnv hook zsh)"
 
 # ─── powerlevel10k config ────────────────────────────────────
 [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
