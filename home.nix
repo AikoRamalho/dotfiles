@@ -29,8 +29,8 @@ in
       bottom
       delta
       direnv
-      dust
       duf
+      dust
       eza
       fd
       fzf
@@ -42,7 +42,6 @@ in
       httpie
       hyperfine
       jq
-      just
       k9s
       lazygit
       mise
@@ -52,11 +51,13 @@ in
       tmux
       zoxide
 
+
       # From the unstable input: cloud CLIs chase provider APIs, and Neovim
       # plugins target the newest release, so a release behind costs here.
       unstable.awscli2
       unstable.azure-cli
       unstable.neovim
+    
     ];
   };
 
