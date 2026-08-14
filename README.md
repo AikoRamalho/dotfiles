@@ -68,20 +68,27 @@ Then:
 
 ```sh
 git clone git@github.com:<user>/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-sudo nix run nix-darwin -- switch --flake .#mac -b backup
+nix build ~/dotfiles#darwinConfigurations.mac.system --out-link /tmp/darwin-system
+sudo /tmp/darwin-system/sw/bin/darwin-rebuild switch --flake ~/dotfiles#mac
 ```
 
-`-b backup` renames any file already sitting at a destination to
-`<name>.backup` instead of failing, which is what makes the first run work on a
-machine that already has a `~/.zshrc`. Later runs are just:
+The absolute path is not decoration. `sudo` resets `PATH`, and nix-darwin
+publishes its own through `/etc/zshenv`, which `sudo` never reads -- so plain
+`sudo nix` and plain `sudo darwin-rebuild` both fail with `command not found`.
+Later rebuilds have the same problem and the same shape:
 
 ```sh
-sudo darwin-rebuild switch --flake ~/dotfiles#mac
+sudo /run/current-system/sw/bin/darwin-rebuild switch --flake ~/dotfiles#mac
 ```
 
-`nix build .#darwinConfigurations.mac.system` evaluates and builds the
-configuration without activating it — the equivalent of a dry run.
+Building first, without `sudo`, is worth the extra line: it downloads and
+compiles everything as your user, so the privileged step is only the
+activation.
+
+Files already sitting at a managed path are renamed to `<name>.backup` rather
+than aborting the run. That comes from `home-manager.backupFileExtension` in
+`flake.nix` -- the `-b` flag belongs to standalone home-manager and does not
+exist on `darwin-rebuild`.
 
 Note that a flake only sees files tracked by Git: a new file has to be at least
 `git add`ed before a rebuild can see it.
