@@ -27,6 +27,11 @@
   };
   nix-homebrew = {
     enable = true;
+    # Takes over the Homebrew already installed at /opt/homebrew: the
+    # repositories are replaced by the pinned brew-src input, while the
+    # installed formulae and casks are kept. Without this, activation
+    # stops rather than touching an existing installation.
+    autoMigrate = true;
     inherit user;
   };
   homebrew = {
