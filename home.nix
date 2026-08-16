@@ -18,7 +18,6 @@ in
 
     file = {
       ".zshrc".source = link ".config/zsh/.zshrc";
-      ".gitconfig".source = link ".config/git/.gitconfig";
     };
 
     # Everything the .zshrc expects on PATH. GUI apps and fonts stay in
@@ -57,6 +56,7 @@ in
   };
 
   xdg.configFile = {
+    "git/config".source = link ".config/git/config";
     "mise/config.toml".source = link ".config/mise/config.toml";
     "wezterm/wezterm.lua".source = link ".config/wezterm/wezterm.lua";
   };
