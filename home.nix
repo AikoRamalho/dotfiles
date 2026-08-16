@@ -16,10 +16,6 @@ in
     homeDirectory = "/Users/${user}";
     stateVersion = "24.11";
 
-    file = {
-      ".zshrc".source = link ".config/zsh/.zshrc";
-    };
-
     # Everything the .zshrc expects on PATH. GUI apps and fonts stay in
     # Homebrew, which handles macOS app bundles better than Nix does.
     packages = with pkgs; [
@@ -59,6 +55,7 @@ in
     "git/config".source = link ".config/git/config";
     "mise/config.toml".source = link ".config/mise/config.toml";
     "wezterm/wezterm.lua".source = link ".config/wezterm/wezterm.lua";
+    "zsh/.zshrc".source = link ".config/zsh/.zshrc";
   };
 
   programs.home-manager.enable = true;

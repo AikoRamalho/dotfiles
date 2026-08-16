@@ -7,6 +7,12 @@
   nixpkgs.config.allowUnfree = true;
   nixpkgs.hostPlatform = "aarch64-darwin"; # use x86_64-darwin for Intel CPU
 
+  # zsh reads $ZDOTDIR/.zshrc when ZDOTDIR is set, and git reads
+  # $XDG_CONFIG_HOME/git/config natively. Pointing ZDOTDIR at ~/.config/zsh
+  # is what lets both configs live where every other tool keeps its own,
+  # so home/.config can mirror ~/.config with no exceptions to carve out.
+  environment.variables.ZDOTDIR = "$HOME/.config/zsh";
+
   system.primaryUser = user;
   users.users.${user} = {
     home = "/Users/${user}";
