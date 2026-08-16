@@ -5,21 +5,20 @@ Configuration for the tools in my setup (macOS, Apple Silicon), managed with
 
 ## Layout
 
-`home/` does **not** mirror `$HOME` — it is only this repository's own
-organization convention. Inside it, `home/.config/` has one directory per tool,
-and that is where the `dot-something` files live, including the ones that sit
-outside `~/.config` in the home directory (such as `.zshrc` and `.gitconfig`).
+`home/` mirrors `$HOME`. Every file under `home/.config/` is linked to the same
+path under `~/.config`, so the tree *is* the declaration -- nothing is listed
+twice, and adding a file is enough to have it linked.
 
 ```
 dotfiles/
 ├── flake.nix          # inputs: nixpkgs, nix-darwin, home-manager, nix-homebrew
 ├── flake.lock         # pinned input revisions
 ├── configuration.nix  # macOS defaults and the Homebrew lists
-├── home.nix           # the symlinks and the nixpkgs package list
+├── home.nix           # the package lists; the links come from the tree
 └── home/
     └── .config/
         ├── git/
-        │   └── .gitconfig
+        │   └── config
         ├── mise/
         │   └── config.toml
         ├── wezterm/
@@ -28,30 +27,26 @@ dotfiles/
             └── .zshrc
 ```
 
-Since the path in the repository is not the path in the home directory, every
-file's destination is declared in [`home.nix`](home.nix):
+Two of these would historically have lived loose in `$HOME`, and both have a
+native way out of it, set in `configuration.nix`:
 
-```nix
-home.file.".zshrc".source = link ".config/zsh/.zshrc";
-home.file.".gitconfig".source = link ".config/git/.gitconfig";
-xdg.configFile."mise/config.toml".source = link ".config/mise/config.toml";
-xdg.configFile."wezterm/wezterm.lua".source = link ".config/wezterm/wezterm.lua";
-```
+- **git** already reads `$XDG_CONFIG_HOME/git/config`, so the file is named
+  `config` and lands at `~/.config/git/config`. No `~/.gitconfig`.
+- **zsh** reads `$ZDOTDIR/.zshrc`, and `environment.variables.ZDOTDIR` points at
+  `~/.config/zsh`. No `~/.zshrc`.
 
-To add a new configuration: drop the file in `home/.config/<tool>/`, declare it
-in `home.nix` and rebuild.
+Linking is per file, never per directory, so the repository never takes over a
+directory that also holds state a tool generates for itself.
 
 ### Symlinks point at the working tree
 
-`link` wraps `mkOutOfStoreSymlink`, so `~/.zshrc` points straight at the file in
-this repository rather than at a read-only copy in the Nix store. Editing the
-file takes effect immediately, with no rebuild — which is the point of keeping
-these configs as plain dotfiles instead of generating them from Nix.
+The links use `mkOutOfStoreSymlink`, so `~/.config/zsh/.zshrc` points straight
+at the file in this repository rather than at a read-only copy in the Nix store.
+Editing it takes effect immediately, with no rebuild -- which is the point of
+keeping these configs as plain files instead of generating them from Nix.
 
 The trade-off is that the linked files are not pinned by the flake: what lands
-in the home directory is whatever the working tree holds right now. Swapping
-`link "..."` for a plain `./home/...` path makes a given file store-managed and
-hermetic, at the cost of needing a `switch` after every edit.
+in the home directory is whatever the working tree holds right now.
 
 `home.nix` assumes the repository is checked out at `~/dotfiles`; change the
 `dotfiles` binding at the top if it lives somewhere else.
@@ -132,7 +127,7 @@ anything installed by hand is uninstalled on the next rebuild.
 | Tool | File | Notes |
 | --- | --- | --- |
 | zsh | `home/.config/zsh/.zshrc` | Oh My Zsh + powerlevel10k, mise, zoxide, fzf, atuin and aliases |
-| git | `home/.config/git/.gitconfig` | delta as pager and diff filter |
+| git | `home/.config/git/config` | delta as pager and diff filter |
 | mise | `home/.config/mise/config.toml` | global tool versions; a project's own `.mise.toml` wins |
 | WezTerm | `home/.config/wezterm/wezterm.lua` | rose-pine-moon theme; dims unfocused windows |
 
