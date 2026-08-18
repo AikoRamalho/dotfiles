@@ -7,10 +7,11 @@
 }:
 
 let
-  # Where this repository is checked out. mkOutOfStoreSymlink needs a path that
-  # exists at activation time, not a copy in the Nix store, so it cannot be
-  # derived from the flake itself.
-  dotfiles = "${config.home.homeDirectory}/dotfiles";
+  # Where this repository is reachable from. mkOutOfStoreSymlink needs a path
+  # that exists at activation time, not a copy in the Nix store, so it cannot be
+  # derived from the flake itself. bootstrap.sh points ~/.dotfiles at wherever
+  # the clone actually lives, which keeps this one line true on any machine.
+  dotfiles = "${config.home.homeDirectory}/.dotfiles";
 
   configRoot = ./home/.config;
 
