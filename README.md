@@ -13,6 +13,7 @@ twice, and adding a file is enough to have it linked.
 dotfiles/
 ├── flake.nix          # inputs: nixpkgs, nix-darwin, home-manager, nix-homebrew
 ├── flake.lock         # pinned input revisions
+├── bootstrap.sh       # first run: Nix, ~/.dotfiles, user, switch
 ├── configuration.nix  # macOS defaults and the Homebrew lists
 ├── home.nix           # the package lists; the links come from the tree
 └── home/
@@ -48,37 +49,36 @@ keeping these configs as plain files instead of generating them from Nix.
 The trade-off is that the linked files are not pinned by the flake: what lands
 in the home directory is whatever the working tree holds right now.
 
-`home.nix` assumes the repository is checked out at `~/dotfiles`; change the
-`dotfiles` binding at the top if it lives somewhere else.
+The one path `home.nix` hardcodes is `~/.dotfiles`, which `bootstrap.sh` points
+at wherever the clone actually lives. The repository itself can sit anywhere.
 
 ## Install
 
-Nix, with flakes enabled:
-
 ```sh
-curl -fsSL https://install.determinate.systems/nix | sh -s -- install
+git clone git@github.com:<user>/dotfiles.git
+cd dotfiles
+./bootstrap.sh
 ```
 
-Then:
+`bootstrap.sh` does four things, each one skipped if it is already true:
+
+1. installs Nix, with the Determinate Systems installer
+2. links the clone to `~/.dotfiles`
+3. rewrites the `user` in `flake.nix` to match `whoami`, after asking
+4. builds the system unprivileged, then activates it with `sudo`
+
+Later rebuilds are one command:
 
 ```sh
-git clone git@github.com:<user>/dotfiles.git ~/dotfiles
-nix build ~/dotfiles#darwinConfigurations.mac.system --out-link /tmp/darwin-system
-sudo /tmp/darwin-system/sw/bin/darwin-rebuild switch --flake ~/dotfiles#mac
+sudo /run/current-system/sw/bin/darwin-rebuild switch --flake ~/.dotfiles#mac
 ```
 
 The absolute path is not decoration. `sudo` resets `PATH`, and nix-darwin
 publishes its own through `/etc/zshenv`, which `sudo` never reads -- so plain
-`sudo nix` and plain `sudo darwin-rebuild` both fail with `command not found`.
-Later rebuilds have the same problem and the same shape:
+`sudo darwin-rebuild` fails with `command not found`.
 
-```sh
-sudo /run/current-system/sw/bin/darwin-rebuild switch --flake ~/dotfiles#mac
-```
-
-Building first, without `sudo`, is worth the extra line: it downloads and
-compiles everything as your user, so the privileged step is only the
-activation.
+`nix build ~/.dotfiles#darwinConfigurations.mac.system` evaluates and builds
+without activating anything -- the equivalent of a dry run.
 
 Files already sitting at a managed path are renamed to `<name>.backup` rather
 than aborting the run. That comes from `home-manager.backupFileExtension` in
@@ -87,6 +87,13 @@ exist on `darwin-rebuild`.
 
 Note that a flake only sees files tracked by Git: a new file has to be at least
 `git add`ed before a rebuild can see it.
+
+The tools declared in the mise config are not installed by the rebuild. After
+the first switch, in a new shell:
+
+```sh
+mise install
+```
 
 ## Where a tool belongs
 
