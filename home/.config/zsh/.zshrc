@@ -3,30 +3,50 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# ─── Oh My Zsh ───────────────────────────────────────────────
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+# ─── plugins ─────────────────────────────────────────────────
+# All of these come from home.packages, so flake.lock pins their versions.
+# Sourcing by profile instead of by store path keeps hashes out of this file:
+# nix-darwin exports NIX_PROFILES from /etc/zshenv.
+plugin() {
+  local rel=$1 profile
+  for profile in ${(z)NIX_PROFILES}; do
+    if [[ -r "$profile/share/$rel" ]]; then
+      source "$profile/share/$rel"
+      return
+    fi
+  done
+  print -u2 "zshrc: plugin not found: $rel"
+}
 
-plugins=(
-  git
-  gitignore
-  brew
-  macos
-  docker
-  kubectl
-  golang
-  python
-  npm
-  node
-  mise
-  fzf-tab
-  zsh-autosuggestions
-  zsh-syntax-highlighting
-  zsh-completions
-  zsh-history-substring-search
-)
+plugin zsh/themes/powerlevel10k/powerlevel9k.zsh-theme
 
-source "$ZSH/oh-my-zsh.sh"
+# ─── completion ──────────────────────────────────────────────
+# zsh-completions ships its functions under share/zsh/site-functions, which
+# /etc/zshenv already adds to fpath for every profile, so it needs no source.
+_zcompdir="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+mkdir -p "$_zcompdir"
+autoload -Uz compinit
+compinit -d "$_zcompdir/zcompdump"
+
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' menu no                # fzf-tab draws the menu instead
+plugin fzf-tab/fzf-tab.plugin.zsh
+
+# ─── history ─────────────────────────────────────────────────
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=50000
+setopt extended_history hist_expire_dups_first hist_ignore_dups \
+       hist_ignore_space hist_reduce_blanks hist_verify \
+       inc_append_history share_history
+
+plugin zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+
+# ─── line editing ────────────────────────────────────────────
+bindkey -e
+plugin zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
 
 # ─── mise (version manager) ──────────────────────────────────
 eval "$(mise activate zsh)"
@@ -88,6 +108,10 @@ export PATH="$HOME/.opencode/bin:$PATH"
 
 # ─── wezterm ─────────────────────────────────────────────────
 export PATH="$PATH:/Applications/WezTerm.app/Contents/MacOS"
+
+# ─── syntax highlighting ─────────────────────────────────────
+# After every other widget, so it wraps them all.
+plugin zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # ─── zoxide (smarter cd) ─────────────────────────────────────
 # Last: zoxide replaces cd and warns when anything is loaded after it.

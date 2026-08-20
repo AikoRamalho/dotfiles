@@ -65,6 +65,16 @@ in
       tmux
       zoxide
 
+      # zsh plugins, sourced by ~/.config/zsh/.zshrc through NIX_PROFILES.
+      # zsh-completions has no file to source: it drops its functions in
+      # share/zsh/site-functions, which /etc/zshenv puts on fpath already.
+      zsh-autosuggestions
+      zsh-completions
+      zsh-fzf-tab
+      zsh-history-substring-search
+      zsh-powerlevel10k
+      zsh-syntax-highlighting
+
       # From the unstable input: cloud CLIs chase provider APIs, and Neovim
       # plugins target the newest release, so a release behind costs here.
       unstable.awscli2
