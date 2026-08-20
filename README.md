@@ -62,10 +62,11 @@ cd dotfiles
 
 `bootstrap.sh` does four things, each one skipped if it is already true:
 
-1. installs Nix, with the Determinate Systems installer
+1. installs Determinate Nix
 2. links the clone to `~/.dotfiles`
-3. rewrites the `user` in `flake.nix` to match `whoami`, after asking
+3. rewrites the `user` in `flake.nix` to match the one running it, after asking
 4. builds the system unprivileged, then activates it with `sudo`
+5. installs the tools the mise config declares
 
 Later rebuilds are one command:
 
@@ -88,12 +89,8 @@ exist on `darwin-rebuild`.
 Note that a flake only sees files tracked by Git: a new file has to be at least
 `git add`ed before a rebuild can see it.
 
-The tools declared in the mise config are not installed by the rebuild. After
-the first switch, in a new shell:
-
-```sh
-mise install
-```
+A rebuild does not install the tools the mise config declares; `bootstrap.sh`
+runs `mise install` for that, and so should you after adding one.
 
 ## Where a tool belongs
 
@@ -143,12 +140,15 @@ anything installed by hand is uninstalled on the next rebuild.
 Everything the `.zshrc` expects on `PATH` is declared — in `home.packages`, in
 the `homebrew` lists or in the mise config — so a rebuild installs it all.
 
-Oh My Zsh and the zsh theme/plugins are installed separately:
+The zsh prompt and plugins come from nixpkgs like everything else --
+powerlevel10k, `fzf-tab`, `zsh-autosuggestions`, `zsh-syntax-highlighting`,
+`zsh-completions` and `zsh-history-substring-search`. The `.zshrc` sources them
+through `NIX_PROFILES` rather than by store path, so no hashes leak into the
+file.
 
-- [Oh My Zsh](https://ohmyz.sh)
-- [powerlevel10k](https://github.com/romkatv/powerlevel10k)
-- plugins: `fzf-tab`, `zsh-autosuggestions`, `zsh-syntax-highlighting`,
-  `zsh-completions`, `zsh-history-substring-search`
+There is no Oh My Zsh. It contributed completions that `/etc/zshenv` already
+puts on `fpath` for every profile, and aliases the `.zshrc` defines itself; what
+it cost was a git clone of unpinned upstream HEADs on every new machine.
 
 ## Kept out of the repository
 
