@@ -11,3 +11,6 @@ result-*
 
 # Scratch space: exports, notes, anything not part of the configuration
 tmp/
+
+# zsh writes these next to the .zshrc it loads
+.zcompdump*
