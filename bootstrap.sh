@@ -107,4 +107,3 @@ PATH="$profile_bin:$PATH" "$profile_bin/mise" install --yes
 
 step "Done"
 info "open a new shell to pick up the new environment"
-[[ -f "$HOME/.p10k.zsh" ]] || info "powerlevel10k runs its wizard on the first prompt to create ~/.p10k.zsh"
