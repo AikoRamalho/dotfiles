@@ -14,9 +14,15 @@ dotfiles/
 ├── flake.nix          # inputs: nixpkgs, nix-darwin, home-manager, nix-homebrew
 ├── flake.lock         # pinned input revisions
 ├── bootstrap.sh       # first run: Nix, ~/.dotfiles, user, switch
-├── configuration.nix  # macOS defaults and the Homebrew lists
-├── home.nix           # the package lists; the links come from the tree
+├── configuration.nix  # the machine: identity, platform, imports
+├── darwin/
+│   ├── defaults.nix   # macOS preferences
+│   └── homebrew.nix   # the Homebrew inventory
+├── home.nix           # the user: identity, stateVersion, imports
 └── home/
+    ├── links.nix      # links every file below, derived from the tree
+    ├── packages.nix   # home.packages
+    ├── shell.nix      # zsh, starship, fzf, atuin, mise, zoxide
     └── .config/
         ├── git/
         │   └── config
@@ -40,6 +46,11 @@ assembles `~/.config/zsh/.zshrc` from the aliases, the plugins and the tool
 hooks, and `programs.starship` writes the prompt config, which is what lets both
 reference nixpkgs by store path, pinned by `flake.lock` like any other package.
 Everything under `home/.config` is still a plain file, linked from the tree.
+
+Each `.nix` file is a module: home-manager and nix-darwin merge them, and every
+one of them sees the same `config`, `pkgs`, `lib` and `user`. Splitting is only
+about keeping unrelated things out of each other's way -- there is no wrapper
+or helper layer between them.
 
 Linking is per file, never per directory, so the repository never takes over a
 directory that also holds state a tool generates for itself.
