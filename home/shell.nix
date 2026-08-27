@@ -176,6 +176,27 @@
         symbol = "󱃾 ";
         format = "[$symbol$context( \\($namespace\\))]($style) ";
         style = "cyan";
+        # Only in a directory that looks like it deploys something. Without
+        # this the context follows you into every shell, which is how you stop
+        # reading it.
+        detect_files = [
+          "k8s"
+          "kubectl"
+          "Chart.yaml"
+          "helmfile.yaml"
+          "Dockerfile"
+          "docker-compose.yml"
+        ];
+        detect_folders = [
+          "k8s"
+          "kubernetes"
+          "charts"
+          ".kube"
+        ];
+        detect_extensions = [
+          "k8s.yaml"
+          "k8s.yml"
+        ];
       };
 
       terraform = {
