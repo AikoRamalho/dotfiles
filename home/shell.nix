@@ -129,7 +129,7 @@
     enable = true;
     settings = {
       format = "$directory$git_branch$git_status$line_break$character";
-      right_format = "$status$cmd_duration$jobs$kubernetes$terraform$aws$azure$python$nix_shell";
+      right_format = "$status$cmd_duration$jobs$kubernetes$terraform$aws\${custom.azure}$python$nix_shell";
       add_newline = true;
 
       character = {
@@ -209,10 +209,28 @@
         format = "[$symbol$profile( \\($region\\))]($style) ";
       };
 
-      azure = {
+      # The native module has no detection of any kind -- print-config shows
+      # it takes only format, symbol, style and subscription_aliases -- so it
+      # renders anywhere an Azure login exists, which is everywhere. A custom
+      # module does take detect_*, so it stands in.
+      azure.disabled = true;
+
+      custom.azure = {
         disabled = false;
         symbol = "󰠅 ";
-        format = "[$symbol$subscription]($style) ";
+        # Not `az account show`: it costs 2.9 s cold and 356 ms warm against a
+        # 500 ms command_timeout, so it would be killed on the first prompt in
+        # every project and quietly render nothing. Reading the profile is
+        # ~25 ms, and jq strips the file's BOM on its own.
+        command = "${lib.getExe pkgs.jq} -r '.subscriptions[] | select(.isDefault) | .name' \"$HOME/.azure/azureProfile.json\"";
+        detect_files = [
+          "azure-pipelines.yml"
+          "azure-pipelines.yaml"
+          "azure.yaml"
+        ];
+        detect_folders = [ ".azure" ];
+        style = "blue bold";
+        format = "on [$symbol($output)]($style) ";
       };
 
       python = {
