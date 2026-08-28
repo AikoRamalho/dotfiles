@@ -1,10 +1,6 @@
 { config, lib, pkgs, ... }:
 
 {
-  # The shell is generated rather than linked from the tree: that is what lets
-  # the prompt, the plugins and the tool hooks come from nixpkgs instead of
-  # from clones under ~/.oh-my-zsh. programs.zsh writes ~/.config/zsh/.zshrc
-  # and a ~/.zshenv that exports ZDOTDIR, so nothing else has to set it.
   programs.zsh = {
     enable = true;
     dotDir = "${config.xdg.configHome}/zsh";
@@ -15,7 +11,6 @@
     syntaxHighlighting.enable = true; # commands turn green when valid
     historySubstringSearch.enable = true; # up/down filter history by prefix
 
-    # The dump goes to the cache, not next to the .zshrc.
     completionInit = ''
       autoload -Uz compinit
       mkdir -p "''${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
@@ -30,8 +25,6 @@
       save = 50000;
       extended = true;
       expireDuplicatesFirst = true;
-      # atuin owns history; this file only feeds the autosuggestions. Kept at
-      # its Oh My Zsh location so the suggestions do not start from zero.
       path = "${config.home.homeDirectory}/.zsh_history";
     };
     setOptions = [
@@ -86,9 +79,6 @@
         source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
       '')
 
-      # Pinned rather than left at the default 1000: the tool integrations
-      # sit at that order too, and ties are broken by the order modules happen
-      # to be evaluated in -- which changes whenever a file moves.
       (lib.mkOrder 1100 ''
         bindkey '^f' autosuggest-accept
 
@@ -218,10 +208,6 @@
       custom.azure = {
         disabled = false;
         symbol = "󰠅 ";
-        # Not `az account show`: it costs 2.9 s cold and 356 ms warm against a
-        # 500 ms command_timeout, so it would be killed on the first prompt in
-        # every project and quietly render nothing. Reading the profile is
-        # ~25 ms, and jq strips the file's BOM on its own.
         command = "${lib.getExe pkgs.jq} -r '.subscriptions[] | select(.isDefault) | .name' \"$HOME/.azure/azureProfile.json\"";
         detect_files = [
           "azure-pipelines.yml"
