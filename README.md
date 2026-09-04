@@ -53,7 +53,7 @@ Open a new terminal and you are done.
 ./rebuild.sh
 ```
 
-**Add a CLI.** Put it in `home/packages.nix` and rebuild.
+**Add a CLI.** Put it in `user/packages.nix` and rebuild.
 
 **Add a config file.** Drop it under `home/.config/<tool>/` at the path the
 tool expects in `~/.config`, `git add` it, rebuild. The link appears on its
@@ -94,17 +94,19 @@ bootstrap.sh         first run on a machine
 rebuild.sh           every run after that
 flake.nix            the inputs and the one machine, "mac"
 configuration.nix    platform and identity
-darwin/              macOS preferences, the Homebrew inventory
+darwin/              modules for the machine: preferences, Homebrew
 home.nix             the user
-home/
+user/                modules for the user
   packages.nix       the CLIs
   shell.nix          zsh, starship, fzf, atuin, mise, zoxide
-  links.nix          turns home/.config into ~/.config
-  .config/           git, mise, wezterm, one directory each
+  links.nix          links everything under home/ into $HOME
+home/                nothing but files that land in $HOME, at the same path
+  .claude/           Claude Code settings
+  .config/           git, mise, nvim, wezterm
 ```
 
 Every `.nix` file is a plain module with comments explaining the decisions it
-encodes. Start with `home/shell.nix` if you want to see how it feels.
+encodes. Start with `user/shell.nix` if you want to see how it feels.
 
 ## Design choices, briefly
 

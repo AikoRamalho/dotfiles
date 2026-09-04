@@ -44,10 +44,13 @@ Report what failed as plainly as what worked, including your own mistakes.
 ## Layout
 
 - `home/.config` **mirrors** `~/.config`. Adding a file there is the whole
-  declaration; `home/links.nix` walks the tree and links it.
+  declaration; `user/links.nix` walks the tree and links it.
 - **Link per file, never per directory**, so a tool can keep generated state
   next to its config without the repository owning it.
-- `links.nix` skips `.nix`, so a module may sit beside the config it manages.
+- **`home/` holds nothing but files that get linked.** The modules live in
+  `user/` and `darwin/`. Keeping them out is what lets the walk have no
+  exclusions, so "it is under `home/`" and "it is linked" stay the same
+  statement.
 - Every `.nix` file is a plain module merged by nix-darwin or home-manager.
   **Do not build an abstraction over them** — no `mkTool`, no custom options.
   For one host and one user there is no second case to generalise from.
@@ -62,7 +65,7 @@ One question decides it: **could two of my projects want different versions?**
 
 - **Yes** — mise, in `home/.config/mise/config.toml`. It is the only layer a
   project can override.
-- **No** — nixpkgs, in `home/packages.nix`, pinned by `flake.lock`.
+- **No** — nixpkgs, in `user/packages.nix`, pinned by `flake.lock`.
 - **Homebrew** only for what nixpkgs cannot do on a Mac: GUI casks, fonts, a
   CLI it does not carry for `aarch64-darwin`.
 
