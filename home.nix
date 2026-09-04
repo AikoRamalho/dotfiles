@@ -2,9 +2,9 @@
 
 {
   imports = [
-    ./home/links.nix
-    ./home/packages.nix
-    ./home/shell.nix
+    ./user/links.nix
+    ./user/packages.nix
+    ./user/shell.nix
   ];
 
   home = {

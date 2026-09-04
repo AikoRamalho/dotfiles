@@ -7,7 +7,7 @@ let
   # the clone actually lives, which keeps this one line true on any machine.
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
 
-  root = ./.;
+  root = ../home;
 
   relative = file: lib.removePrefix "${toString root}/" (toString file);
 
@@ -28,12 +28,12 @@ let
     value.source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/${relative file}";
   };
 
-  # .nix is skipped: the modules live in this directory, and without the filter
-  # they would be linked into $HOME as if they were configuration.
-  ignored = file: let name = baseNameOf (toString file); in
-    name == ".DS_Store" || lib.hasSuffix ".nix" name;
-
-  tracked = builtins.filter (f: !ignored f) (lib.filesystem.listFilesRecursive root);
+  # Nothing to exclude but macOS litter: the modules live in user/, so every
+  # file under home/ is there to be linked and the invariant holds without an
+  # exception to remember.
+  tracked = builtins.filter (f: baseNameOf (toString f) != ".DS_Store") (
+    lib.filesystem.listFilesRecursive root
+  );
 in
 {
   home.file = builtins.listToAttrs (map linkOf tracked);
