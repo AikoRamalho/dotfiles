@@ -1,6 +1,5 @@
 {
   "theme": "dark-ansi",
-  "model": "opus[1m]",
   "includeCoAuthoredBy": false,
   "statusLine": {
     "type": "command",
