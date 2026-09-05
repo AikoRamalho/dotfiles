@@ -8,14 +8,17 @@
   # else keeps whatever the owning agent read at login, so on a machine that
   # stays up for weeks a setting reaches the disk and never takes effect.
   #
-  # activateSettings asks the running apps to re-read; it does not restart
-  # them, so a preference whose owner ignores the notification still needs a
-  # logout. It has to run inside the user's GUI session -- activation is root
-  # now -- through the same wrapper nix-darwin uses for every `defaults write`.
+  # activateSettings asks the running apps to re-read. It notifies, it does not
+  # restart, and two agents demonstrably ignore it: after a rebuild that ran
+  # this, SystemUIServer and screencaptureui were still the processes from
+  # before it, and dragging the Cmd-Shift-5 thumbnail stayed broken until they
+  # were killed by hand. So they get killed here, the same way nix-darwin
+  # already restarts the Dock. launchd brings both back at once.
   system.activationScripts.postActivation.text = ''
     echo >&2 "reloading preferences..."
     launchctl asuser "$(id -u -- ${user})" sudo --user=${user} -- \
       /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u || true
+    killall -qu ${user} SystemUIServer screencaptureui || true
   '';
 
   system.defaults = {
