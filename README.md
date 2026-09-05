@@ -136,10 +136,10 @@ encodes. Start with `user/shell.nix` if you want to see how it feels.
   asks for it.
 - A macOS preference can reach the disk without taking effect. nix-darwin
   writes twenty preference domains and restarts only the Dock; the rest keep
-  whatever the owning agent read at login. A rebuild now runs `activateSettings`
-  to ask them to re-read, but an agent that ignores it — or one that has been
-  running for weeks — still needs a logout. A stale agent is not cosmetic: it
-  once broke dragging the Cmd-Shift-5 screenshot thumbnail, fixed by
-  `killall SystemUIServer screencaptureui`.
+  whatever the owning agent read at login. A rebuild runs `activateSettings` to
+  ask them to re-read and then kills `SystemUIServer` and `screencaptureui`,
+  which were measured to ignore the notification and to survive a rebuild —
+  that is what broke dragging the Cmd-Shift-5 screenshot thumbnail, twice.
+  Anything else that holds stale preferences still needs a logout.
 - The whole thing assumes one user on one Apple Silicon Mac. That is a
   choice, not a limit of the tools, and it keeps the configuration small.
