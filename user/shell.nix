@@ -5,7 +5,7 @@
     enable = true;
     dotDir = "${config.xdg.configHome}/zsh";
 
-    defaultKeymap = "emacs";
+    defaultKeymap = "viins";
 
     autosuggestion.enable = true; # ghost text from history
     syntaxHighlighting.enable = true; # commands turn green when valid
