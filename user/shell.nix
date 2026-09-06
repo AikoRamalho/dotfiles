@@ -120,7 +120,6 @@
     settings = {
       format = "$directory$git_branch$git_status$line_break$character";
       right_format = "$status$cmd_duration$jobs$kubernetes$terraform$aws\${custom.azure}$python$nix_shell";
-      add_newline = true;
 
       character = {
         success_symbol = "[❯](bold green)";
@@ -199,12 +198,10 @@
         format = "[$symbol$profile( \\($region\\))]($style) ";
       };
 
-      # The native module has no detection of any kind -- print-config shows
-      # it takes only format, symbol, style and subscription_aliases -- so it
-      # renders anywhere an Azure login exists, which is everywhere. A custom
-      # module does take detect_*, so it stands in.
-      azure.disabled = true;
-
+      # The native azure module stays off, which is its default: print-config
+      # shows it takes only format, symbol, style and subscription_aliases, so
+      # it would render anywhere an Azure login exists. The custom module below
+      # does take detect_*, and stands in for it.
       custom.azure = {
         disabled = false;
         symbol = "󰠅 ";
