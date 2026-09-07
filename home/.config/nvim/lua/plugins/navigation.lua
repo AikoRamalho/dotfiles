@@ -10,7 +10,6 @@ return {
       lazy = false,
       opts = {
         picker = {
-          enabled = true,
           sources = {
             files = { hidden = true },
             grep = { hidden = true },
