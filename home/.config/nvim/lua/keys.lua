@@ -10,5 +10,6 @@ vim.keymap.set('n', '<Esc>', function()
 end, { desc = 'Save' })
 -- select all
 vim.keymap.set('n', '<C-a>', 'ggVG', { desc = 'Select All' })
--- pasting over a selection no longer clobbers your clipboard
-vim.cmd([[ xnoremap <expr> p 'pgv"'.v:register.'y' ]])
+-- pasting over a selection no longer clobbers your clipboard: P has kept the
+-- register since 0.9, so the old reselect-and-re-yank dance is gone
+vim.keymap.set('x', 'p', 'P', { desc = 'Paste over selection' })
