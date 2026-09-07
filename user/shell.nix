@@ -56,8 +56,6 @@
       gd = "git diff";
       gl = "git log --oneline --graph --decorate --all";
       add = "git add .";
-      push = "git push";
-      pull = "git pull";
       m = "git switch main";
       lg = "lazygit";
 
